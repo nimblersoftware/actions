@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: ${{ secrets.NODE_VERSION }}
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@keevosoftwares'
+          scope: '@nimblersoftware'
 
       - name: Restaurando dependências
         run: npm i -f
