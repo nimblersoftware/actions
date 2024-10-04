@@ -1,0 +1,129 @@
+name: Publicação de função lambda
+
+on:
+  workflow_call:
+    inputs:
+      DOTNET_VERSION:
+        required: true
+        type: string
+      FUNCTION_NAME:
+        required: true
+        type: string
+      PATH_PROJECT:
+        required: true
+        type: string
+      GITHUB_REF:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+          required: true
+      AWS_SECRET_ACCESS_KEY:
+          required: true
+      AWS_REGION:
+          required: true
+
+jobs:
+  deploy:
+    name: Deploy Lambda
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.DOTNET_VERSION }}
+
+      - name: Build Lambda Function
+        working-directory: ${{ inputs.PATH_PROJECT }}
+        run: dotnet publish -c Release -o publish
+
+      - name: Publish Lambda Function
+        if: success()
+        run: |
+          zip -j publish.zip ./${{ inputs.PATH_PROJECT }}/publish/*
+          aws lambda update-function-code --function-name ${{ inputs.FUNCTION_NAME }} --zip-file fileb://publish.zip 
+      
+      - name: Wait for Lambda update to complete
+        if: success()
+        run: |
+          while true; do
+            STATUS=$(aws lambda get-function --function-name ${{ inputs.FUNCTION_NAME }} --query 'Configuration.LastUpdateStatus' --output text)
+            if [ "$STATUS" = "Successful" ]; then
+              break
+            elif [ "$STATUS" = "Failed" ]; then
+              echo "Lambda update failed"
+              exit 1
+            else
+              sleep 5
+            fi
+          done
+
+          case "${{ inputs.GITHUB_REF }}" in
+              "refs/heads/develop")
+                  echo "ALIAS=dev" >> $GITHUB_ENV
+                  ;;
+              "refs/heads/qas")
+                  echo "ALIAS=qas" >> $GITHUB_ENV
+                  ;;
+              "refs/heads/master")
+                  echo "ALIAS=prod" >> $GITHUB_ENV
+                  ;;
+              "qas")
+                  echo "ALIAS=qas" >> $GITHUB_ENV
+                  ;;
+              "Qas")
+                  echo "ALIAS=qas" >> $GITHUB_ENV
+                  ;;
+              "master")
+                  echo "ALIAS=prod" >> $GITHUB_ENV
+                  ;;    
+          esac
+
+          echo "LAMBDA_PUB_VERSION=$(aws lambda publish-version --function-name ${{ inputs.FUNCTION_NAME }} | jq -r '.Version')" >> $GITHUB_ENV     
+      
+      - name: Create Lambda version and set alias
+        if: success() 
+        run: |
+          echo "Environment: $ALIAS" 
+          echo "Publish Version: $LAMBDA_PUB_VERSION"
+
+          aliases=($(aws lambda list-aliases --function-name ${{ inputs.FUNCTION_NAME }} --query Aliases[].Name --output text))
+
+          if [[ ${aliases[@]} =~ "$ALIAS" ]]; then
+            aws lambda update-alias --function-name ${{ inputs.FUNCTION_NAME }} --name $ALIAS --function-version $LAMBDA_PUB_VERSION
+          else
+            aws lambda create-alias --function-name ${{ inputs.FUNCTION_NAME }} --name $ALIAS --function-version $LAMBDA_PUB_VERSION
+          fi          
+
+      - name: Delete Lambda without alias
+        if: success()
+        run: |
+          aliases=($(aws lambda list-aliases --function-name ${{ inputs.FUNCTION_NAME }} --query Aliases[].FunctionVersion --output text))
+          versoes=($(aws lambda list-versions-by-function --function-name ${{ inputs.FUNCTION_NAME }} --query Versions[].Version --output text))
+
+          for versao in "${versoes[@]}"; do
+              if [ "${versao:1}" != "LATEST" ]; then
+                  deleteVersao=true
+                  for alias in "${aliases[@]}"; do
+                      if [ "$versao" -eq "$alias" ]; then
+                          deleteVersao=false
+                      fi
+                  done
+
+                  if [ "$deleteVersao" = true ]; then
+                      aws lambda delete-function --function-name ${{ inputs.FUNCTION_NAME }}:$versao
+                  fi
+              fi
+          done
