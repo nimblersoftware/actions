@@ -19,13 +19,12 @@ on:
         OWNER:
           required: true
 
-permissions: write-all
-
 jobs:
   build:
     name: Compilando pacote ${{ inputs.PROJECT_NAME }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions: write-all
     defaults:
       run:
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
