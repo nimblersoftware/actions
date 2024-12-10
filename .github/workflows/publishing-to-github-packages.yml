@@ -47,7 +47,7 @@ jobs:
       #   run: dotnet restore /p:Configuration="Release" 
 
       - name: Compilando projeto
-        run: ${{ secrets.BUILD_ENV }} dotnet publish -c Release --version-suffix ${{ secrets.VERSION_SUFFIX }} -o out
+        run: ${{ inputs.BUILD_ENV }} dotnet publish -c Release --version-suffix ${{ secrets.VERSION_SUFFIX }} -o out
 
       - name: Exclusão do pacote no nuget
         uses: actions/delete-package-versions@v4
