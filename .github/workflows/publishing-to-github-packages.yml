@@ -20,6 +20,8 @@ on:
           required: true
         VERSION_SUFFIX:
           required: true
+        IGNORE_VERSIONS:
+          required: true
 
 jobs:
   build:
@@ -51,8 +53,7 @@ jobs:
           package-name: ${{ inputs.PROJECT_NAME }}
           token: ${{ secrets.GIT_TOKEN }}
           package-type: nuget
-          min-versions-to-keep: 2
-          delete-only-pre-release-versions: "true" 
+          ignore-versions: ${{ secrets.IGNORE_VERSIONS }}
           #min-versions-to-keep: 3 #Será utilizado quando estivermos versionando os componentes por sprint
 
       - name: Publicando pacote
