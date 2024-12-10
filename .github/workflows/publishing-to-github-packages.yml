@@ -9,6 +9,9 @@ on:
         WORKING_DIRECTORY:
           required: true
           type: string
+        BUILD_ENV:
+          type: string
+
     secrets:
         DOTNET_VERSION:
           required: true
@@ -40,11 +43,11 @@ jobs:
         with:
           dotnet-version: ${{ secrets.DOTNET_VERSION }}
 
-      - name: Restaurando dependências
-        run: dotnet restore /p:Configuration="Release" 
+      # - name: Restaurando dependências
+      #   run: dotnet restore /p:Configuration="Release" 
 
       - name: Compilando projeto
-        run: dotnet publish -c Release --version-suffix ${{ secrets.VERSION_SUFFIX }} -o out
+        run: ${{ secrets.BUILD_ENV }} dotnet publish -c Release --version-suffix ${{ secrets.VERSION_SUFFIX }} -o out
 
       - name: Exclusão do pacote no nuget
         uses: actions/delete-package-versions@v4
@@ -54,7 +57,6 @@ jobs:
           token: ${{ secrets.GIT_TOKEN }}
           package-type: nuget
           ignore-versions: ${{ secrets.IGNORE_VERSIONS }}
-          #min-versions-to-keep: 3 #Será utilizado quando estivermos versionando os componentes por sprint
 
       - name: Publicando pacote
         run: |
