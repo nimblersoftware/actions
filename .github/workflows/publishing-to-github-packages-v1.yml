@@ -47,14 +47,14 @@ jobs:
       - name: Compilando projeto
         run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build -c Release --version-suffix ${{ secrets.VERSION_SUFFIX }} -o out
 
-      - name: Exclusão do pacote no nuget
-        uses: actions/delete-package-versions@v4
-        with:
-          owner: ${{ secrets.OWNER }}
-          package-name: ${{ inputs.PROJECT_NAME }}
-          token: ${{ secrets.GIT_TOKEN }}
-          package-type: nuget
-          ignore-versions: ${{ secrets.IGNORE_VERSIONS }}
+      # - name: Exclusão do pacote no nuget
+      #   uses: actions/delete-package-versions@v4
+      #   with:
+      #     owner: ${{ secrets.OWNER }}
+      #     package-name: ${{ inputs.PROJECT_NAME }}
+      #     token: ${{ secrets.GIT_TOKEN }}
+      #     package-type: nuget
+      #     ignore-versions: ${{ secrets.IGNORE_VERSIONS }}
 
       - name: Publicando pacote
         run: |
