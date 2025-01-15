@@ -28,7 +28,7 @@ jobs:
   build:
     name: Compilando pacote ${{ inputs.PROJECT_NAME }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     permissions: write-all
     defaults:
       run:
