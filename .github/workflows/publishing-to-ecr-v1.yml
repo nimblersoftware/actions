@@ -65,15 +65,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # - name: Compilando data atual
-      #   id: date
-      #   run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+      - name: Compilando data atual
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
 
-      # - name: Criando backup da imagem atual
-      #   run: |
-      #     docker pull ${{ secrets.ECR_IMAGE }}
-      #     docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
-      #     docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+      - name: Criando backup da imagem atual
+        run: |
+          docker pull ${{ secrets.ECR_IMAGE }}
+          docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+          docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
