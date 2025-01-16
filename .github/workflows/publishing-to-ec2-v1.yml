@@ -59,7 +59,7 @@ jobs:
         with:
           host:  98.80.71.179
           username: ec2-user
-          key: AAAAB3NzaC1yc2EAAAADAQABAAABAQDIGOsFr8skFrxj5CO55UlwtKfGwefU4rXSLB2qIivge0YSXjVVuk3beeYU4dzEJxO/G9bsnxvLpg2+QUOt2InnUH5vUB46sZ8jO0qprNMfQBiZroOPWkrkaGIYyu9/IQae/7z5bOW/heOZI2URgk2Pk7d/5rI1Qe18js3/QvM5uXNwOG5xQH+/vpvzoxZBRs9p20/zjd+S27mRgdN1s/EIv6EYbq8ETGr4wySBQ124FnfjF4Izq0QKRBzmJTKY1L+0fa4f8xlSaLh6rlIv7aW6TmbY6wMU/6oiUkpB3YegzHDrfW1qWZfkr0j6yie+CYpdHKKwBqE9mbBfnC41o4lj
+          key: ${{ secrets.AWS_SSH_KEY }}
           # host: ${{ secrets.AWS_SERVER }}
           # username: ${{ secrets.AWS_SERVER_USER }}
           # key: ${{ secrets.AWS_SSH_KEY }}
