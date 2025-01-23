@@ -58,5 +58,3 @@ jobs:
           cd ${{ inputs.DIST_DIRECTORY }}
           npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GIT_TOKEN }}
           npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
