@@ -35,24 +35,24 @@ on:
           required: true
 
 jobs:
-  # push_to_ecr:
-  #   uses: nimblersoftware/actions/.github/workflows/publishing-to-ecr-v1.yml@master
-  #   with:
-  #     DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
-  #     PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
-  #     CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
-  #   secrets:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     AWS_REGION: ${{ secrets.AWS_REGION }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #     DOTNET_VERSION: ${{ secrets.DOTNET_VERSION }}
-  #     ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
-  #     VERSION_SUFFIX: ${{ secrets.VERSION_SUFFIX }}
+  push_to_ecr:
+    uses: nimblersoftware/actions/.github/workflows/publishing-to-ecr-v1.yml@master
+    with:
+      DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
+      PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
+      CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      DOTNET_VERSION: ${{ secrets.DOTNET_VERSION }}
+      ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
+      VERSION_SUFFIX: ${{ secrets.VERSION_SUFFIX }}
 
   deploy:
     name: Publicação AWS EC2
     runs-on: ubuntu-latest
-    # needs: push_to_ecr
+    needs: push_to_ecr
     steps:
       - name: Efetuando publicação
         uses: appleboy/ssh-action@master
