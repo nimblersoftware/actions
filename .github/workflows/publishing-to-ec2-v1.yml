@@ -64,8 +64,9 @@ jobs:
           username: ${{ secrets.AWS_SERVER_USER }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
+            sudo su
             cd docker-compose
-            sudo aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}
-            sudo docker-compose -f ${{ inputs.DOCKER_COMPOSE_FILE }} down
-            sudo docker rmi -f $(sudo docker images -a -q)
-            sudo docker-compose -f ${{ inputs.DOCKER_COMPOSE_FILE }} up -d
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}
+            docker-compose -f ${{ inputs.DOCKER_COMPOSE_FILE }} down
+            docker rmi -f $(docker images -a -q)
+            docker-compose -f ${{ inputs.DOCKER_COMPOSE_FILE }} up -d
