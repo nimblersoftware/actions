@@ -42,7 +42,6 @@ jobs:
     uses: nimblersoftware/actions/.github/workflows/publishing-to-ecr-v1.yml@master
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
-      DOCKER_COMPOSE_FILE: ${{ inputs.DOCKER_COMPOSE_FILE }}
       PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
       CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
     secrets:
