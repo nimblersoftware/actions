@@ -6,6 +6,9 @@ on:
       DOCKER_FILE:
         required: true
         type: string
+      DOCKER_COMPOSE_FILE:
+        required: true
+        type: string
       PATH_PROJECT:
         required: true
         type: string
@@ -14,31 +17,32 @@ on:
         type: string
     secrets:
       AWS_ACCESS_KEY_ID:
-          required: true
+        required: true
       AWS_REGION:
-          required: true
+        required: true
       AWS_SECRET_ACCESS_KEY:
-          required: true
+        required: true
       DOTNET_VERSION:
-          required: true
+        required: true
       ECR_IMAGE:
-          required: true
+        required: true
       VERSION_SUFFIX:
         required: true
       AWS_ORGANIZATION:
-          required: true
+        required: true
       AWS_SERVER:
         required: true
       AWS_SERVER_USER:
-          required: true
+        required: true
       AWS_SSH_KEY:
-          required: true
+        required: true
 
 jobs:
   push_to_ecr:
     uses: nimblersoftware/actions/.github/workflows/publishing-to-ecr-v1.yml@master
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
+      DOCKER_COMPOSE_FILE: ${{ inputs.DOCKER_COMPOSE_FILE }}
       PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
       CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
     secrets:
@@ -63,6 +67,6 @@ jobs:
           script: |
             cd docker-compose
             sudo aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}
-            sudo docker-compose -f docker-compose-ambiente.yml down
+            sudo docker-compose -f ${{ inputs.DOCKER_COMPOSE_FILE }} down
             sudo docker rmi $(docker images -a -q)
-            sudo docker-compose -f docker-compose-ambiente.yml up -d
+            sudo docker-compose -f ${{ inputs.DOCKER_COMPOSE_FILE }} up -d
