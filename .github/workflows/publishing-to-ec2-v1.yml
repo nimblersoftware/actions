@@ -9,12 +9,12 @@ on:
       DOCKER_COMPOSE_FILE:
         required: true
         type: string
-      PATH_PROJECT:
-        required: true
-        type: string
-      CONFIG_FILE:
-        required: true
-        type: string
+      # PATH_PROJECT:
+      #   required: true
+      #   type: string
+      # CONFIG_FILE:
+      #   required: true
+      #   type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -22,8 +22,8 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      DOTNET_VERSION:
-        required: true
+      # DOTNET_VERSION:
+      #   required: true
       ECR_IMAGE:
         required: true
       VERSION_SUFFIX:
@@ -42,13 +42,13 @@ jobs:
     uses: nimblersoftware/actions/.github/workflows/publishing-to-ecr-v1.yml@master
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
-      PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
-      CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
+      # PATH_PROJECT: ${{ inputs.PATH_PROJECT }}
+      # CONFIG_FILE: ${{ inputs.CONFIG_FILE }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      DOTNET_VERSION: ${{ secrets.DOTNET_VERSION }}
+      # DOTNET_VERSION: ${{ secrets.DOTNET_VERSION }}
       ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
       VERSION_SUFFIX: ${{ secrets.VERSION_SUFFIX }}
 
