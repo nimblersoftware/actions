@@ -27,24 +27,6 @@ on:
           required: true
 
 jobs:
-  # build:
-  #   name: Compilando projeto
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Configurando dotnet
-  #     uses: actions/setup-dotnet@v4
-  #     with:
-  #       dotnet-version: ${{ secrets.DOTNET_VERSION }}
-
-  #   - name: Restaurando dependências
-  #     run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet restore ${{ inputs.PATH_PROJECT }} /p:Configuration="Release" --configfile ${{ inputs.CONFIG_FILE }}
-
-  #   - name: Compilando projeto
-  #     run: Environment=${{ secrets.VERSION_SUFFIX }} dotnet build ${{ inputs.PATH_PROJECT }} -c Release --configfile ${{ inputs.CONFIG_FILE }}
-
   push_to_ecr:
     name: Criação da imagem no ECR
     runs-on: ubuntu-latest
