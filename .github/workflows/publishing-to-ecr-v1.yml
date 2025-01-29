@@ -6,12 +6,6 @@ on:
       DOCKER_FILE:
         required: true
         type: string
-      # PATH_PROJECT:
-      #   required: true
-      #   type: string
-      # CONFIG_FILE:
-      #   required: true
-      #   type: string
     secrets:
       AWS_ACCESS_KEY_ID:
           required: true
@@ -19,8 +13,6 @@ on:
           required: true
       AWS_SECRET_ACCESS_KEY:
           required: true
-      # DOTNET_VERSION:
-      #     required: true
       ECR_IMAGE:
           required: true
       VERSION_SUFFIX:
@@ -31,7 +23,6 @@ jobs:
     name: Criação da imagem no ECR
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # needs: build
     steps:
       - name: Check out code
         uses: actions/checkout@v4
