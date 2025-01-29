@@ -47,7 +47,7 @@ jobs:
     needs: push_to_ecr
     steps:
       - name: Efetuando publicação
-        uses: appleboy/ssh-action@v0.1.8 #appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0 #appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.AWS_SERVER }}
           username: ${{ secrets.AWS_SERVER_USER }}
