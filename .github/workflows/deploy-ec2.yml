@@ -25,19 +25,20 @@ jobs:
       - name: Enviando comando de deploy via SSM
         id: ssm
         run: |
+          ENV_SUFFIX=${{ inputs.environment == 'production' && 'prod' || 'qas' }}
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.AWS_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --parameters commands='[
-              "aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}",
-              "cd ~ && git clone https://github.com/nimblersoftware/docker-compose.git || (cd ~/docker-compose && git pull)",
-              "cd ~/docker-compose",
-              "aws secretsmanager get-secret-value --region ${{ vars.AWS_REGION }} --secret-id nimbler-erp-api/${{ inputs.environment == 'production' && 'prod' || 'qas' }} --query SecretString --output text | python3 -c \"import sys,json; [print(f'{k}={v}') for k,v in json.load(sys.stdin).items()]\" > .env",
-              "docker compose -f ${{ inputs.docker_compose_file }} pull",
-              "docker compose -f ${{ inputs.docker_compose_file }} down",
-              "docker compose -f ${{ inputs.docker_compose_file }} up -d",
-              "docker image prune -f"
-            ]' \
+            --parameters commands="[
+              \"aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}\",
+              \"mkdir -p /opt/nimbler\",
+              \"git clone https://github.com/nimblersoftware/docker-compose.git /opt/nimbler/docker-compose 2>/dev/null || git -C /opt/nimbler/docker-compose pull\",
+              \"aws secretsmanager get-secret-value --region ${{ vars.AWS_REGION }} --secret-id nimbler-erp-api/${ENV_SUFFIX} --query SecretString --output text | jq -r 'to_entries[] | \\\"\\\\(.key)=\\\\(.value)\\\"' > /opt/nimbler/docker-compose/.env\",
+              \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} pull\",
+              \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} down\",
+              \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} up -d\",
+              \"docker image prune -f\"
+            ]" \
             --timeout-seconds 300 \
             --query "Command.CommandId" \
             --output text)
