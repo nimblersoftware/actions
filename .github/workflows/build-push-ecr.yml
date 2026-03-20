@@ -12,6 +12,7 @@ jobs:
     name: Criação da imagem no ECR
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment: ${{ inputs.environment }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
 
       - name: Criando backup da imagem atual
         run: |
-          if aws ecr describe-images --repository-name ${{ vars.ECR_REPOSITORY }} --image-ids imageTag=latest > /dev/null 2>&1; then
+          if aws ecr describe-images --repository-name ${{ secrets.ECR_IMAGE }} --image-ids imageTag=latest > /dev/null 2>&1; then
             docker pull ${{ secrets.ECR_IMAGE }}
             docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
             docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
@@ -42,5 +43,5 @@ jobs:
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
-          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ vars.DOCKER_FILE }} .
+          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ vars.DOCKER_FILE }} ..
           docker push ${{ secrets.ECR_IMAGE }}
