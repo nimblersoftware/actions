@@ -32,7 +32,8 @@ jobs:
             --parameters commands="[
               \"aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}\",
               \"mkdir -p /opt/nimbler\",
-              \"git clone https://github.com/nimblersoftware/docker-compose.git /opt/nimbler/docker-compose 2>/dev/null || git -C /opt/nimbler/docker-compose pull\",
+              \"apt-get install -y git jq 2>/dev/null || true\",
+              \"if [ -d /opt/nimbler/docker-compose ]; then git -C /opt/nimbler/docker-compose pull; else git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/nimblersoftware/docker-compose.git /opt/nimbler/docker-compose; fi\",
               \"aws secretsmanager get-secret-value --region ${{ vars.AWS_REGION }} --secret-id nimbler-erp-api/${ENV_SUFFIX} --query SecretString --output text | jq -r 'to_entries[] | \\\"\\\\(.key)=\\\\(.value)\\\"' > /opt/nimbler/docker-compose/.env\",
               \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} pull\",
               \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} down\",
