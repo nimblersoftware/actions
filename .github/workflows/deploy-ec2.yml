@@ -31,7 +31,7 @@ on:
 
 jobs:
   push_to_ecr:
-    uses: nimblersoftware/actions/.github/workflows/build-push-ecr.yml@v1
+    uses: nimblersoftware/actions/.github/workflows/build-push-ecr.yml@master
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
     secrets:
