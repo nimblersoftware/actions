@@ -3,20 +3,9 @@ name: Processo para o ecr
 on:
   workflow_call:
     inputs:
-      DOCKER_FILE:
-        required: true
-        type: string
-    secrets:
-      AWS_ACCESS_KEY_ID:
+        environment:
           required: true
-      AWS_REGION:
-          required: true
-      AWS_SECRET_ACCESS_KEY:
-          required: true
-      ECR_IMAGE:
-          required: true
-      VERSION_SUFFIX:
-          required: true
+          type: string
 
 jobs:
   push_to_ecr:
@@ -30,9 +19,8 @@ jobs:
       - name: Configurando as credenciais na AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+            aws-region: ${{ vars.AWS_REGION }}
+            role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
       - name: Login no Amazon ECR
         id: login-ecr
@@ -44,11 +32,15 @@ jobs:
 
       - name: Criando backup da imagem atual
         run: |
-          docker pull ${{ secrets.ECR_IMAGE }}
-          docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
-          docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+          if aws ecr describe-images --repository-name ${{ vars.ECR_REPOSITORY }} --image-ids imageTag=latest > /dev/null 2>&1; then
+            docker pull ${{ secrets.ECR_IMAGE }}
+            docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+            docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
+          else
+            echo "Imagem não encontrada no ECR, backup ignorado."
+          fi
 
       - name: Preparando e enviando imagem para o Amazon ECR
         run: |
-          docker build --build-arg VERSION_SUFFIX=${{ secrets.VERSION_SUFFIX }} -t ${{ secrets.ECR_IMAGE }} -f ${{ inputs.DOCKER_FILE }} .
+          docker build -t ${{ secrets.ECR_IMAGE }} -f ${{ vars.DOCKER_FILE }} .
           docker push ${{ secrets.ECR_IMAGE }}
