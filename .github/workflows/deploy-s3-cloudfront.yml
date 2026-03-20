@@ -15,10 +15,10 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Configurando Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODE_VERSION }}
           cache: 'npm'
@@ -30,7 +30,7 @@ jobs:
         run: ${{ vars.BUILD_COMMAND }}
 
       - name: Configurando as credenciais na AWS
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
