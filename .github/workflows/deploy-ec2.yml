@@ -31,7 +31,7 @@ on:
 
 jobs:
   push_to_ecr:
-    uses: nimblersoftware/actions/.github/workflows/publishing-to-ecr-v1.yml@master
+    uses: nimblersoftware/actions/.github/workflows/build-push-ecr.yml@v1
     with:
       DOCKER_FILE: ${{ inputs.DOCKER_FILE }}
     secrets:
@@ -47,7 +47,7 @@ jobs:
     needs: push_to_ecr
     steps:
       - name: Efetuando publicação
-        uses: appleboy/ssh-action@v1.2.0 #appleboy/ssh-action@v0.1.8
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.AWS_SERVER }}
           username: ${{ secrets.AWS_SERVER_USER }}

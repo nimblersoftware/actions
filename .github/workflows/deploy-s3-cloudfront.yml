@@ -12,7 +12,7 @@ on:
         COMMAND_BUILD:
             required: true
             type: string
-            
+
     secrets:
         AWS_REGION:
             required: true
