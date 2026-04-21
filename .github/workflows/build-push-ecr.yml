@@ -33,7 +33,7 @@ jobs:
 
       - name: Criando backup da imagem atual
         run: |
-          if aws ecr describe-images --repository-name ${{ secrets.ECR_IMAGE }} --image-ids imageTag=latest > /dev/null 2>&1; then
+          if aws ecr describe-images --repository-name ${{ secrets.ECR_REPOSITORY }} --image-ids imageTag=latest > /dev/null 2>&1; then
             docker pull ${{ secrets.ECR_IMAGE }}
             docker image tag ${{ secrets.ECR_IMAGE }} ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}
             docker push ${{ secrets.ECR_IMAGE }}_${{ steps.date.outputs.date }}

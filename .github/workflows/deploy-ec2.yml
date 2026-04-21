@@ -22,6 +22,18 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
+      - name: Checkout docker-compose repo
+        uses: actions/checkout@v4
+        with:
+          repository: nimblersoftware/docker-compose
+          token: ${{ secrets.GH_TOKEN }}
+          path: docker-compose-repo
+
+      - name: Upload docker-compose para S3
+        run: |
+          aws s3 cp docker-compose-repo/${{ inputs.docker_compose_file }} \
+            s3://${{ secrets.AWS_DEPLOY_BUCKET }}/docker-compose/${{ inputs.docker_compose_file }}
+
       - name: Enviando comando de deploy via SSM
         id: ssm
         run: |
@@ -31,9 +43,9 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters commands="[
               \"aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ORGANIZATION }}\",
-              \"mkdir -p /opt/nimbler\",
-              \"apt-get install -y git jq 2>/dev/null || true\",
-              \"if [ -d /opt/nimbler/docker-compose ]; then git -C /opt/nimbler/docker-compose pull; else git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/nimblersoftware/docker-compose.git /opt/nimbler/docker-compose; fi\",
+              \"apt-get install -y jq 2>/dev/null || true\",
+              \"mkdir -p /opt/nimbler/docker-compose\",
+              \"aws s3 cp s3://${{ secrets.AWS_DEPLOY_BUCKET }}/docker-compose/${{ inputs.docker_compose_file }} /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }}\",
               \"aws secretsmanager get-secret-value --region ${{ vars.AWS_REGION }} --secret-id nimbler-erp-api/${ENV_SUFFIX} --query SecretString --output text | jq -r 'to_entries[] | \\\"\\\\(.key)=\\\\(.value)\\\"' > /opt/nimbler/docker-compose/.env\",
               \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} pull\",
               \"docker compose -f /opt/nimbler/docker-compose/${{ inputs.docker_compose_file }} down\",
